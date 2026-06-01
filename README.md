@@ -1,2 +1,1 @@
-# beaver-motion-effects
-Beaver Motion Effects
+# Beaver Motion Effects
