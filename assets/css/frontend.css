@@ -1,0 +1,3 @@
+[data-bme="motion"] {
+	will-change: opacity, transform;
+}
