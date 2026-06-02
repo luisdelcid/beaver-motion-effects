@@ -25,17 +25,6 @@ class Sanitizer {
 		return sanitize_text_field( wp_unslash( (string) $value ) );
 	}
 
-
-	/**
-	 * Sanitizes an identifier key.
-	 *
-	 * @param mixed $value Raw value.
-	 * @return string
-	 */
-	public static function key( $value ) {
-		return sanitize_key( wp_unslash( (string) $value ) );
-	}
-
 	/**
 	 * Sanitizes a boolean-like value.
 	 *
