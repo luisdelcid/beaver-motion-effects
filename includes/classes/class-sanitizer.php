@@ -36,6 +36,22 @@ class Sanitizer {
 	}
 
 	/**
+	 * Normalizes a yes/no value.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return string
+	 */
+	public static function yes_no( $value ) {
+		if ( is_bool( $value ) ) {
+			return $value ? 'yes' : 'no';
+		}
+
+		$value = strtolower( self::text( $value ) );
+
+		return in_array( $value, array( '1', 'true', 'yes', 'on' ), true ) ? 'yes' : 'no';
+	}
+
+	/**
 	 * Sanitizes a string against an allow list.
 	 *
 	 * @param mixed  $value Raw value.
@@ -59,7 +75,14 @@ class Sanitizer {
 	 * @return float
 	 */
 	public static function float_range( $value, $min, $max, $fallback ) {
-		$value = is_numeric( $value ) ? (float) $value : (float) $fallback;
+		if ( is_numeric( $value ) ) {
+			$value = (float) $value;
+		} elseif ( preg_match( '/-?\d+(?:\.\d+)?/', (string) $value, $matches ) ) {
+			$value = (float) $matches[0];
+		} else {
+			$value = (float) $fallback;
+		}
+
 		$value = max( (float) $min, min( (float) $max, $value ) );
 
 		return $value;

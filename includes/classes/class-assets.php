@@ -84,6 +84,7 @@ class Assets {
 			array(
 				'attributePrefix' => 'data-bme',
 				'isDebug'         => (bool) apply_filters( 'bme_frontend_debug', false ),
+				'isBuilderActive' => $this->is_beaver_builder_editing(),
 			)
 		);
 	}
