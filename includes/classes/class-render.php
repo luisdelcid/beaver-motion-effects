@@ -37,33 +37,62 @@ class Render {
 	 * @return void
 	 */
 	public function init() {
-		// TODO: Hook into Beaver Builder render filters for rows, columns, and modules.
-		// Example future targets may include FLBuilder row, column, and module attribute filters.
+		add_filter( 'fl_builder_row_attributes', array( $this, 'add_node_attributes' ), 20, 2 );
+		add_filter( 'fl_builder_column_attributes', array( $this, 'add_node_attributes' ), 20, 2 );
+		add_filter( 'fl_builder_module_attributes', array( $this, 'add_node_attributes' ), 20, 2 );
+	}
+
+	/**
+	 * Adds BME data attributes to enabled Beaver Builder nodes.
+	 *
+	 * @param array<string, mixed> $attributes Existing attributes.
+	 * @param object              $node       Beaver Builder node.
+	 * @return array<string, mixed>
+	 */
+	public function add_node_attributes( $attributes, $node ) {
+		if ( ! is_array( $attributes ) ) {
+			$attributes = array();
+		}
+
+		if ( ! is_object( $node ) || empty( $node->settings ) ) {
+			return $attributes;
+		}
+
+		return array_merge( $attributes, $this->get_motion_attributes_array( $node->settings ) );
+	}
+
+	/**
+	 * Builds a safe data attribute array for a motion settings array/object.
+	 *
+	 * @param array<string, mixed>|object $raw_settings Raw motion settings.
+	 * @return array<string, string>
+	 */
+	public function get_motion_attributes_array( $raw_settings ) {
+		$settings = $this->settings->sanitize( $raw_settings );
+
+		if ( 'yes' !== $settings['enabled'] ) {
+			return array();
+		}
+
+		return array(
+			'data-bme'                => (string) $settings['preset'],
+			'data-bme-duration'       => (string) $settings['duration'],
+			'data-bme-delay'          => (string) $settings['delay'],
+			'data-bme-ease'           => (string) $settings['ease'],
+			'data-bme-start'          => (string) $settings['start'],
+			'data-bme-once'           => (string) $settings['once'],
+			'data-bme-disable-mobile' => (string) $settings['disable_mobile'],
+		);
 	}
 
 	/**
 	 * Builds escaped data attributes for a motion settings array.
 	 *
-	 * @param array<string, mixed> $raw_settings Raw motion settings.
+	 * @param array<string, mixed>|object $raw_settings Raw motion settings.
 	 * @return string
 	 */
 	public function get_motion_attributes( $raw_settings ) {
-		$settings = $this->settings->sanitize( $raw_settings );
-
-		if ( empty( $settings['enabled'] ) ) {
-			return '';
-		}
-
-		$attributes = array(
-			'data-bme'          => 'motion',
-			'data-bme-effect'   => $settings['effect'],
-			'data-bme-duration' => $settings['duration'],
-			'data-bme-delay'    => $settings['delay'],
-			'data-bme-ease'     => $settings['ease'],
-			'data-bme-once'     => $settings['once'] ? 'true' : 'false',
-		);
-
-		return $this->render_attributes( $attributes );
+		return $this->render_attributes( $this->get_motion_attributes_array( $raw_settings ) );
 	}
 
 	/**
